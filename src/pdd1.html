@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+</head>
+
+<body>
+</body>
+
+<script>
+const data = [3, 8];
+const source = [[1, 2], [3, 4], [5, 8]];
+
+var merge = function(intervals) {
+    const ret = [];
+
+    intervals.sort((a, b) => a[0] - b[0]);
+
+    intervals.forEach(item => {
+        if (ret.length === 0) {
+            ret.push(item);
+        } else {
+            const left = item[0], right = item[1];
+            const last = ret[ret.length - 1], lastLeft = last[0], lastRight = last[1];
+            if (left <= lastRight + 1) {
+                ret[ret.length - 1] = [lastLeft, Math.max(lastRight, right)];
+            } else {
+                ret.push(item);
+            }
+        }
+    });
+
+    return ret;
+};
+
+const func = (data, source) => {
+  const left = data[0], right = data[1];
+  const temp = merge(source);
+  console.log('temp: ', temp);
+  for (let i = 0; i < temp.length; i++) {
+    const tempLeft = temp[i][0], tempRight = temp[i][1];
+    if (tempLeft <= left && right <= tempRight) {
+      return true;
+    }
+  }
+  return false;
+}
+
+console.log('func(data, source): ', func(data, source));
+</script>
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+</head>
+
+<body>
+</body>
+
+<script>
+// 假设请求API为
+function request(params) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => resolve(params), 1000);
+  });
+}
+
+// 最多处理3个请求的调度器
+function Scheduler(limit = 3) {
+  const pending = [];
+  let count = 0;
+
+  // 处理request以及limit判断的地方
+  const run = () => {
+    // 数组为空吗？超出limit限制了吗？
+    if (!pending.length || count >= limit) return;
+    // 依次取出之前存储的参数
+    const param = pending.shift();
+    count++;
+    request(param).finally(() => {
+      count--;
+      // 递归，继续判断能不能执行下一个request
+      run();
+    });
+  };
+  // 返回一个创建请求的方法
+  return function (param) {
+    //内部返回一个promise
+    return new Promise((resolve, reject) => {
+      // 存储数据
+      pending.push(param);
+      // 开始请求
+      run();
+    });
+  };
+}
+
+const createPromise = Scheduler();
+createPromise(1).then((res) => console.log(res));
+createPromise(2).then((res) => console.log(res));
+createPromise(3).then((res) => console.log(res));
+createPromise(4).then((res) => console.log(res));
+createPromise(5).then((res) => console.log(res));
+
+// 预期，等1秒后输出1 2 3 ，再等一秒输出4 5
+</script>
+</html>

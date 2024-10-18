@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+</head>
+
+<body>
+</body>
+
+<script>
+// Function.prototype.sumOf = () => {
+//   return this.sum;
+// }
+// const sum = function(...args) {
+//   const ret = args.reduce((cur, pre) => pre + cur, 0);
+  
+//   return function(...innerArgs) {
+//     this.sum = ret;
+//     return sum(this.sum, ...innerArgs);
+//   }
+// }
+
+function sum(...args) {
+  const f = (...rest) => sum(...args, ...rest);
+  f.valueOf = () => args.reduce((x, y) => x + y, 0);
+  return f;
+}
+
+// sum(1, 2).sumOf() // 返回 3
+console.log('sum(1, 2).sumOf(): ', sum(1, 2).valueOf());
+
+// sum(1, 2)(3).sumOf() // 返回 6
+console.log('sum(1, 2)(3).sumOf(): ', sum(1, 2)(3).valueOf());
+
+// sum(1)(2, 3, 4).sumOf() // 返回 10
+console.log('sum(1)(2, 3, 4).sumOf(): ', sum(1)(2, 3, 4).valueOf());
+
+// sum(1, 2)(3, 4)(5).sumOf() // 返回 15
+console.log('sum(1, 2)(3, 4)(5).sumOf(): ', sum(1, 2)(3, 4)(5).valueOf());
+</script>
+</html>

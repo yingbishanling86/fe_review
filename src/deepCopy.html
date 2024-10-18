@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+</head>
+
+<body>
+</body>
+
+<script>
+  const map = new WeakMap();
+  const deepCopy = (obj) => {
+    if (obj instanceof Object) {
+      if (map.has(obj)) {
+        return map.get(obj);
+      }
+
+      const newObj = obj instanceof Array ? [] : {};
+
+      map.set(obj, newObj);
+
+      for (key in obj) {
+        const value = obj[key];
+
+        if (typeof value !== 'object') {
+          newObj[key] = value;
+        } else {
+          newObj[key] = deepCopy(value)
+        }
+      }
+      
+      return newObj;
+    } else {
+      return obj;
+    }
+  }
+</script>
+</html>

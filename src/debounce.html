@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+</head>
+
+<body>
+</body>
+
+<script>
+  // 防抖: n 秒后在执行该事件，若在 n 秒内被重复触发，则重新计时
+  const debounce = (fn, delay) => {
+    let timer;
+    return function() {
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(fn, delay);
+    }
+  }
+
+  // 节流: n 秒内只运行一次，若在 n 秒内重复触发，只有一次生效
+  const throttle = (fn, delay) => {
+    let last
+    return function(...args) {
+      if (!last || Date.now() - start >= delay) {
+        fn.call(this, ...args);
+        last = Date.now();
+      }
+    }
+  }
+</script>
+</html>

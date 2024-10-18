@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+</head>
+
+<body>
+</body>
+
+<script>
+
+  class MyPromise {
+    static PENDING = 'pending';
+    static RESOLVED = 'resolved';
+    static REJECT = 'reject';
+    
+    constructor(func) {
+      this.value = undefined;
+      this.reason = undefined;
+      this.status = MyPromise.PENDING;
+      this.resolvedCallbacks = [];
+      this.rejectedCallbacks = [];
+
+      const resolve = (value) => {
+        if (this.status === MyPromise.PENDING) {
+          this.value = value;
+          this.status = MyPromise.RESOLVED;
+          this.resolvedCallbacks.forEach(fn => fn());
+        }
+      }
+
+      const reject = (reason) => {
+        if (this.status === MyPromise.PENDING) {
+          this.reason = reason;
+          this.status = MyPromise.REJECT;
+          this.rejectedCallbacks.forEach(fn => fn());
+        }
+      }
+
+      try {
+        func(resolve, reject);
+      } catch (error) {
+        reject(error);
+      }
+    }
+
+    then(_onFullfilled, _onRejected){
+      const onFullfilled = typeof _onFullfilled === 'function' ? _onFullfilled : v => v;
+      const onRejected = typeof _onRejected === 'function' ? _onRejected : err => { throw err };
+
+      var promise2 = new MyPromise((resolve, reject) => {
+        if (this.status === MyPromise.RESOLVED) {
+          let x = onFullfilled(this.value);
+          resolve(x);
+        }
+        if (this.status === MyPromise.REJECT) {
+          let x = onRejected(this.reason);
+          resolve(x);
+        }
+        if (this.status === MyPromise.PENDING) {
+          this.resolvedCallbacks.push(() => {
+            let x = onFullfilled(this.value);
+            resolve(x);
+          });
+          this.rejectedCallbacks.push(() => {
+            let x = onRejected(this.reason);
+            resolve(x);
+          });
+        }
+      })
+
+      return promise2;
+    }
+  }
+
+const promise = new MyPromise((resolve, reject) => {
+  console.log('promise start');
+  setTimeout(() => {
+    resolve('1');
+  }, 1000);
+})
+  .then()
+  .then()
+  .then(
+    data => {
+      console.log('done', data);
+    },
+    err => {
+      console.log('err',err);
+    }
+  )
+
+  MyPromise.prototype.all = (promises) => {
+    return new MyPromise((resolve, reject) => {
+      let ret = [], count = 0;
+      for (let i = 0; i < promises.length; i++) {
+        promises[i].then(
+          (val) => {
+            count++;
+            ret[i] = val;
+            if (count === promises.length) {
+              resolve(ret);
+            }
+          },
+          (reason) => reject(reason)
+        )
+      }
+    })
+  }
+</script>
+</html>

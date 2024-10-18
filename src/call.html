@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+</head>
+
+<body>
+</body>
+
+<script>
+Function.prototype.myCall = (context, ...args) => {
+  var self = context;
+  if (!self) {
+    self = window;
+  }
+
+  const func = this;
+  const key = Symbol();
+  self[key] = func;
+  const ret = self[key](...args);
+  delete self[key];
+  return ret;
+}
+
+Function.prototype.bind = (context, ...args) => {
+  const func = this;
+  return function F(...innerArgs) {
+    if (this instanceof F) {
+      return new func(...args, ...innerArgs);
+    }
+    return func.call(context, ...args, ...innerArgs);
+  }
+};
+</script>
+</html>
