@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+</head>
+
+<body>
+</body>
+
+<script>
+  // 参数是直接传入了一个数组，要求同样是是并发最多同时处理3个请求，但要求如果全部成功则返回结果的数组，且结果顺序与参数顺序保持一致，如果失败则直接返回失败
+  // 假设请求API为
+  function request(params) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => resolve(params), 1000);
+    });
+  }
+
+  // 最多处理3个请求的调度器
+  function Scheduler(list = [], limit = 3) {
+    const queue = [...list];
+    const len = list.length;
+    const ret = Array(len).fill(null);
+    let resolvedCount = 0;
+    let count = 0;
+    let _resolve, _reject;
+
+    const run = () => {
+      if (count >= limit || queue.length === 0) {
+        return;
+      }
+      const index = len - queue.length;
+      const val = queue.shift();
+      count++;
+      request(val)
+        .then((res) => {
+          ret[index] = res;
+          resolvedCount++;
+          if (len === resolvedCount) {
+            _resolve(ret);
+          }
+        })
+        .catch(_reject)
+        .finally(() => {
+          count--;
+          run();
+        })
+    }
+
+    return new Promise((resolve, reject) => {
+      _resolve = resolve;
+      _reject = reject;
+      list.forEach(() => run());
+    })
+  };
+
+  Scheduler([1, 2, 3, 4, 5]).then(console.log); // 1 2 3 4 5
+</script>
+
+</html>

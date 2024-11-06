@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+</head>
+
+<body>
+</body>
+
+<script>
+  function PromiseAll(promises) {
+    const len = promises.length;
+    const queue = [...promises];
+    const ret = Array(len).fill(null);
+    let resolvedcount = 0;
+
+    return new Promise((_resolve, _reject) => {
+
+      const run = () => {
+        if (!queue.length) {
+          return;
+        }
+        const index = len - queue.length;
+        const promise = queue.shift();
+        promise
+          .then((val) => {
+            ret[index] = val;
+            resolvedcount++;
+            if (resolvedcount === len) {
+              _resolve(ret);
+            }
+          })
+          .catch(_reject)
+          .finally();
+      }
+
+      promises.forEach(() => run());
+    })
+  }
+
+
+  const P1 = new Promise((resolve, reject) => {
+    setTimeout(() => resolve(1), 3000)
+  });
+  const P2 = new Promise((resolve, reject) => {
+    setTimeout(() => resolve(2), 1000)
+  });
+  const P3 = new Promise((resolve, reject) => {
+    setTimeout(() => resolve(3), 2000)
+  });
+  PromiseAll([P1, P2, P3]).then((res) => console.log('最终结果为:', res)); // 1 2 3 4 5
+</script>
+
+<style>
+</style>
+
+</html>
